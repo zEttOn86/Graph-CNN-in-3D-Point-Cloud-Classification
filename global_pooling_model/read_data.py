@@ -14,12 +14,12 @@ from scipy.spatial import cKDTree
 import pickle
 from Parameters import Parameters
 para = Parameters()
-def farthestSampling(file_names, NUM_POINT):
+def farthestSampling(file_names, NUM_POINT, base_dir):
     file_indexs = np.arange(0, len(file_names))
     inputData = dict()
     inputLabel = dict()
     for index in range (len(file_indexs)):
-        current_data, current_label = utils.loadDataFile(file_names[file_indexs[index]])
+        current_data, current_label = utils.loadDataFile(os.path.join(BASE_DIR, '../', file_names[file_indexs[index]]))
         current_data = current_data[:,0:NUM_POINT,:]
         current_label = np.squeeze(current_label)
         current_label= np.int_(current_label)
@@ -57,8 +57,8 @@ def load_data(NUM_POINT, sampleType):
 
     #np.random.shuffle(train_file_idxs)
     if sampleType == 'farthest_sampling':
-        inputTrainFarthest, inputTrainLabel = farthestSampling(TRAIN_FILES, NUM_POINT)
-        inputTestFathest, inputTestLabel = farthestSampling(TEST_FILES, NUM_POINT)
+        inputTrainFarthest, inputTrainLabel = farthestSampling(TRAIN_FILES, NUM_POINT, BASE_DIR)
+        inputTestFathest, inputTestLabel = farthestSampling(TEST_FILES, NUM_POINT, BASE_DIR)
         return inputTrainFarthest, inputTrainLabel, inputTestFathest, inputTestLabel
 
     elif sampleType == 'uniform_sampling':
