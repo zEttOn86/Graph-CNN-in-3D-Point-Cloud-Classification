@@ -75,7 +75,7 @@ def prepareGraph(inputData, neighborNumber, pointNumber, dataType):
     baseDir = os.path.dirname(os.path.abspath(__file__))
     #baseDir ='/raid60/yingxue.zhang2/ICASSP_code'
     #baseDir= os.path.abspath(os.path.dirname(os.getcwd()))
-    if para.dataset == 'ModelNet40':
+    if para.dataset == 'ModelNet40': # default dataset  
         fileDir =  baseDir+ '/graph/' + dataType+'_pn_'+str(pointNumber)+'_nn_'+str(neighborNumber)
     elif para.dataset == 'ModelNet10':
         fileDir =  baseDir+ '/graph_ModelNet10/' + dataType+'_pn_'+str(pointNumber)+'_nn_'+str(neighborNumber)
