@@ -21,7 +21,7 @@ def farthestSampling(file_names, NUM_POINT):
     for index in range (len(file_indexs)):
         current_data, current_label = utils.loadDataFile(file_names[file_indexs[index]])
         current_data = current_data[:,0:NUM_POINT,:]
-        current_label = np.squeeze(current_label) 
+        current_label = np.squeeze(current_label)
         current_label= np.int_(current_label)
         inputData.update({index : current_data})
         inputLabel.update({index : current_label})
@@ -33,7 +33,7 @@ def uniformSampling(file_names, NUM_POINT):
     inputLabel = dict()
     for index in range (len(file_indexs)):
         current_data, current_label = utils.loadDataFile(file_names[file_indexs[index]])
-        current_label = np.squeeze(current_label) 
+        current_label = np.squeeze(current_label)
         current_label= np.int_(current_label)
         output = np.zeros((len(current_data), NUM_POINT, 3))
         for i,object_xyz in enumerate (current_data):
@@ -45,22 +45,22 @@ def uniformSampling(file_names, NUM_POINT):
 
 # ModelNet40 official train/test split
 def load_data(NUM_POINT, sampleType):
-    #BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     #BASE_DIR= os.path.abspath(os.path.dirname(os.getcwd()))
-    
+
     #print BASE_DIR
-    BASE_DIR = '/raid60/yingxue.zhang2/ICASSP_code/'    
+    #BASE_DIR = '/raid60/yingxue.zhang2/ICASSP_code/'
     TRAIN_FILES = utils.getDataFiles( \
-        os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/train_files.txt'))
+        os.path.join(BASE_DIR, '../data/modelnet40_ply_hdf5_2048/train_files.txt'))
     TEST_FILES = utils.getDataFiles(\
-        os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/test_files.txt'))
-    
+        os.path.join(BASE_DIR, '../data/modelnet40_ply_hdf5_2048/test_files.txt'))
+
     #np.random.shuffle(train_file_idxs)
     if sampleType == 'farthest_sampling':
         inputTrainFarthest, inputTrainLabel = farthestSampling(TRAIN_FILES, NUM_POINT)
         inputTestFathest, inputTestLabel = farthestSampling(TEST_FILES, NUM_POINT)
         return inputTrainFarthest, inputTrainLabel, inputTestFathest, inputTestLabel
-    
+
     elif sampleType == 'uniform_sampling':
         inputTrainFarthest, inputTrainLabel = uniformSampling(TRAIN_FILES, NUM_POINT)
         inputTestFathest, inputTestLabel = uniformSampling(TEST_FILES, NUM_POINT)
@@ -72,8 +72,8 @@ def load_data(NUM_POINT, sampleType):
 #generate graph structure and store in the system
 def prepareGraph(inputData, neighborNumber, pointNumber, dataType):
     scaledLaplacianDict = dict()
-    #baseDir = os.path.dirname(os.path.abspath(__file__))
-    baseDir ='/raid60/yingxue.zhang2/ICASSP_code'  
+    baseDir = os.path.dirname(os.path.abspath(__file__))
+    #baseDir ='/raid60/yingxue.zhang2/ICASSP_code'
     #baseDir= os.path.abspath(os.path.dirname(os.getcwd()))
     if para.dataset == 'ModelNet40':
         fileDir =  baseDir+ '/graph/' + dataType+'_pn_'+str(pointNumber)+'_nn_'+str(neighborNumber)
@@ -81,7 +81,7 @@ def prepareGraph(inputData, neighborNumber, pointNumber, dataType):
         fileDir =  baseDir+ '/graph_ModelNet10/' + dataType+'_pn_'+str(pointNumber)+'_nn_'+str(neighborNumber)
     else:
         print "Please enter a valid dataset"
-        
+
     if (not os.path.isdir(fileDir)):
         print "calculating the graph data"
         os.makedirs(fileDir)
@@ -103,7 +103,7 @@ def prepareGraph(inputData, neighborNumber, pointNumber, dataType):
             with open(fileDir+'/batchGraph_'+str(batchIndex), 'wb') as handle:
                 pickle.dump(batchFlattenLaplacian, handle)
             print "Saving the graph data batch"+str(batchIndex)
-        
+
     else:
         print("Loading the graph data from "+dataType+'Data')
         scaledLaplacianDict = loadGraph(inputData, neighborNumber, pointNumber, fileDir)
@@ -119,10 +119,9 @@ def loadGraph(inputData, neighborNumber, pointNumber, fileDir):
         scaledLaplacianDict.update({batchIndex: batchGraph })
         print "Finish loading batch_"+str(batchIndex)
     return scaledLaplacianDict
-        
-                        
+
+
 def prepareData(inputTrain, inputTest, neighborNumber, pointNumber):
     scaledLaplacianTrain = prepareGraph(inputTrain, neighborNumber, pointNumber, 'train',)
     scaledLaplacianTest = prepareGraph(inputTest, neighborNumber, pointNumber, 'test')
     return scaledLaplacianTrain, scaledLaplacianTest
-    
