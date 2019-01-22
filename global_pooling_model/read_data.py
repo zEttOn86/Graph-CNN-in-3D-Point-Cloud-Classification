@@ -19,7 +19,7 @@ def farthestSampling(file_names, NUM_POINT, base_dir):
     inputData = dict()
     inputLabel = dict()
     for index in range (len(file_indexs)):
-        current_data, current_label = utils.loadDataFile(os.path.join(BASE_DIR, '../', file_names[file_indexs[index]]))
+        current_data, current_label = utils.loadDataFile(os.path.join(base_dir, '../', file_names[file_indexs[index]]))
         current_data = current_data[:,0:NUM_POINT,:]
         current_label = np.squeeze(current_label)
         current_label= np.int_(current_label)
