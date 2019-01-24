@@ -31,6 +31,8 @@ saver = tf.train.Saver()
 learningRate = para.learningRate
 
 modelDir = para.modelDir
+if not os.path.exists(modelDir):
+    os.makedirs(modelDir)
 save_model_path = modelDir + "model_" + para.fileName
 weight_dict = weight_dict_fc(trainLabel, para)
 
@@ -75,6 +77,8 @@ for epoch in range(para.max_epoch):
 
     # save log
     log_Dir = para.logDir
+    if not os.path.exists(log_Dir):
+        os.makedirs(log_Dir)
     fileName = para.fileName
     with open(log_Dir + 'confusion_mat_' + fileName, 'wb') as handle:
         pickle.dump(confusion_mat, handle)
