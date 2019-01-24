@@ -30,6 +30,7 @@ def adjacency(dist, idx):
 
     # Weight matrix.
     I = np.arange(0, M).repeat(k)
+    print(I)
     J = idx.reshape(M * k)
     V = dist.reshape(M * k)
     W = scipy.sparse.coo_matrix((V, (I, J)), shape=(M, M))
