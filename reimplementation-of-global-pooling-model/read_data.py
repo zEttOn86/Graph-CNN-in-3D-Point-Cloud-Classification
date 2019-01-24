@@ -1,6 +1,7 @@
 # coding:utf-8
 import os, sys, time
 import numpy as np
+import scipy
 from scipy.spatial import cKDTree
 
 import utils
@@ -63,6 +64,9 @@ def uniformSampling(file_names, NUM_POINT, base_dir):
     return inputData, inputLabel
 
 def prepareData(inputTrain, inputTest, neighborNumber, pointNumber, base_dir, dataset):
+    """
+    return dict
+    """
     scaledLaplacianTrain = prepareGraph(inputTrain, neighborNumber, pointNumber, 'train', base_dir, dataset)
     scaledLaplacianTest = prepareGraph(inputTest, neighborNumber, pointNumber, 'test', base_dir, dataset)
     return scaledLaplacianTrain, scaledLaplacianTest
@@ -97,7 +101,7 @@ def prepareGraph(inputData, neighborNumber, pointNumber, dataType, base_dir, dat
                 dd, ii = tree.query(pcCoordinates, k = neighborNumber) # shape = (1024, 40): (# sampling point, nearestNeighbor)
                 A = utils.adjacency(dd, ii)
                 scaledLaplacian = utils.scaled_laplacian(A)
-                flattenLaplacian = scaledLaplacian.tolil().reshape((1, pointNumber*pointNumber))
+                flattenLaplacian = scaledLaplacian.tolil().reshape((1, pointNumber*pointNumber)) #shape = 1,1024x1024
                 if i ==0:
                     batchFlattenLaplacian = flattenLaplacian
                 else:
