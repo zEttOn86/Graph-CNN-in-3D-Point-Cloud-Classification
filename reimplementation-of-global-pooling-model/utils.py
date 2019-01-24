@@ -29,11 +29,10 @@ def adjacency(dist, idx):
     dist = np.exp(- dist ** 2 / sigma2)
 
     # Weight matrix.
-    I = np.arange(0, M).repeat(k)
-    print(I)
-    J = idx.reshape(M * k)
-    V = dist.reshape(M * k)
-    W = scipy.sparse.coo_matrix((V, (I, J)), shape=(M, M))
+    I = np.arange(0, M).repeat(k) # k回繰り返す
+    J = idx.reshape(M * k)　# cols
+    V = dist.reshape(M * k) # rows
+    W = scipy.sparse.coo_matrix((V, (I, J)), shape=(M, M)) 
     # No self-connections.
     W.setdiag(0)
 
