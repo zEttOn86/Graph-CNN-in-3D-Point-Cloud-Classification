@@ -86,6 +86,8 @@ This project is licensed under the MIT License - see the [LICENSE.md] file for d
 
 - I edited `global_pooling_model` folder and confirmed that it works on google colab (20190123).
 
+- I determined that I use source code on `multi_res_pooling_model`.
+
 ### ToDo
 
 - [ ] Python3に拡張する
@@ -94,4 +96,4 @@ This project is licensed under the MIT License - see the [LICENSE.md] file for d
 
 - [ ] 入力形式を拡張する
 
-- [ ] python2, tensorflow 1.12.0 のDockerfileを作成する
+- [x] python2, tensorflow 1.12.0 のDockerfileを作成する
