@@ -1,3 +1,4 @@
+import os, sys, time
 from read_data import load_data, prepareData
 import tensorflow as tf
 from model_multi_res import model_architecture, trainOneEpoch, evaluateOneEpoch
@@ -6,7 +7,7 @@ from parameters import parameters
 from utils import weight_dict_fc
 from sklearn.metrics import confusion_matrix
 import pickle
-import time
+
 # ===============================Hyper parameters========================
 para = parameters()
 samplingType = 'farthest_sampling'
