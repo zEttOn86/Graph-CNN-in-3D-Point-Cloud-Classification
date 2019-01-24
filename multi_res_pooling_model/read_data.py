@@ -12,7 +12,7 @@ from utils import adjacency, scaled_laplacian
 import numpy as np
 from scipy.spatial import cKDTree
 import pickle
-def farthestSampling(file_names, NUM_POINT):
+def farthestSampling(file_names, NUM_POINT, base_dir):
     #Description: load point cloud data into dictionary format {key: batch index, value: batch data or labels}
     #               containing each batch of the data (data prepared by farthest sampling)
     #input: (1)file name (2) point number
@@ -21,15 +21,15 @@ def farthestSampling(file_names, NUM_POINT):
     inputData = dict()
     inputLabel = dict()
     for index in range (len(file_indexs)):
-        current_data, current_label = utils.loadDataFile(file_names[file_indexs[index]])
+        current_data, current_label = utils.loadDataFile(os.path.join(base_dir, '../', file_names[file_indexs[index]]))
         current_data = current_data[:,0:NUM_POINT,:]
-        current_label = np.squeeze(current_label) 
+        current_label = np.squeeze(current_label)
         current_label= np.int_(current_label)
         inputData.update({index : current_data})
         inputLabel.update({index : current_label})
     return inputData, inputLabel
 
-def uniformSampling(file_names, NUM_POINT):
+def uniformSampling(file_names, NUM_POINT, base_dir):
     #Description: load point cloud data into dictionary format {key: batch index, value: batch data or labels}
     #                       containing each batch of the data (data prepared by uniform sampling)
 
@@ -39,8 +39,8 @@ def uniformSampling(file_names, NUM_POINT):
     inputData = dict()
     inputLabel = dict()
     for index in range (len(file_indexs)):
-        current_data, current_label = utils.loadDataFile(file_names[file_indexs[index]])
-        current_label = np.squeeze(current_label) 
+        current_data, current_label = utils.loadDataFile(os.path.join(base_dir, '../', file_names[file_indexs[index]]))
+        current_label = np.squeeze(current_label)
         current_label= np.int_(current_label)
         output = np.zeros((len(current_data), NUM_POINT, 3))
         for i,object_xyz in enumerate (current_data):
@@ -57,24 +57,24 @@ def load_data(NUM_POINT, sampleType):
     #return: (1) training set data  (2) training set label
     #        (3) testing set data   (4) testing set label
 
-    #BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-    BASE_DIR = '/raid60/yingxue.zhang2/ICASSP_code/'    
+    #BASE_DIR = '/raid60/yingxue.zhang2/ICASSP_code/'
     TRAIN_FILES = utils.getDataFiles( \
-        os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/train_files.txt'))
+        os.path.join(BASE_DIR, '../data/modelnet40_ply_hdf5_2048/train_files.txt'))
     TEST_FILES = utils.getDataFiles(\
-        os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/test_files.txt'))
-    
+        os.path.join(BASE_DIR, '../data/modelnet40_ply_hdf5_2048/test_files.txt'))
+
     #np.random.shuffle(train_file_idxs)
     if sampleType == 'farthest_sampling':
-        inputTrainFarthest, inputTrainLabel = farthestSampling(TRAIN_FILES, NUM_POINT)
-        inputTestFathest, inputTestLabel = farthestSampling(TEST_FILES, NUM_POINT)
+        inputTrainFarthest, inputTrainLabel = farthestSampling(TRAIN_FILES, NUM_POINT, BASE_DIR)
+        inputTestFathest, inputTestLabel = farthestSampling(TEST_FILES, NUM_POINT, BASE_DIR)
         return inputTrainFarthest, inputTrainLabel, inputTestFathest, inputTestLabel
-    
+
     elif sampleType == 'uniform_sampling':
-        inputTrainFarthest, inputTrainLabel = uniformSampling(TRAIN_FILES, NUM_POINT)
-        inputTestFathest, inputTestLabel = uniformSampling(TEST_FILES, NUM_POINT)
+        inputTrainFarthest, inputTrainLabel = uniformSampling(TRAIN_FILES, NUM_POINT, BASE_DIR)
+        inputTestFathest, inputTestLabel = uniformSampling(TEST_FILES, NUM_POINT, BASE_DIR)
 
         return inputTrainFarthest, inputTrainLabel, inputTestFathest, inputTestLabel
 
@@ -88,8 +88,8 @@ def prepareGraph(inputData, neighborNumber, pointNumber, dataType):
     #return: scaled Laplacian matrix of each object
 
     scaledLaplacianDict = dict()
-    #baseDir = os.path.dirname(os.path.abspath(__file__))
-    baseDir ='/raid60/yingxue.zhang2/ICASSP_code'  
+    baseDir = os.path.dirname(os.path.abspath(__file__))
+    #baseDir ='/raid60/yingxue.zhang2/ICASSP_code'
     #baseDir= os.path.abspath(os.path.dirname(os.getcwd()))
     fileDir =  baseDir+ '/graph/' + dataType+'_pn_'+str(pointNumber)+'_nn_'+str(neighborNumber)
     if (not os.path.isdir(fileDir)):
@@ -113,7 +113,7 @@ def prepareGraph(inputData, neighborNumber, pointNumber, dataType):
             with open(fileDir+'/batchGraph_'+str(batchIndex), 'wb') as handle:
                 pickle.dump(batchFlattenLaplacian, handle)
             print "Saving the graph data batch"+str(batchIndex)
-        
+
     else:
         print("Loading the graph data from "+dataType+'Data')
         scaledLaplacianDict = loadGraph(inputData, neighborNumber, pointNumber, fileDir)
@@ -130,8 +130,8 @@ def loadGraph(inputData, neighborNumber, pointNumber, fileDir):
         scaledLaplacianDict.update({batchIndex: batchGraph })
         print "Finish loading batch_"+str(batchIndex)
     return scaledLaplacianDict
-        
-                        
+
+
 def prepareData(inputTrain, inputTest, neighborNumber, pointNumber):
     #Description: prepare input graph data
     # input: (1)inputTrain: training data (2)inputTest: testing data
@@ -139,4 +139,3 @@ def prepareData(inputTrain, inputTest, neighborNumber, pointNumber):
     scaledLaplacianTrain = prepareGraph(inputTrain, neighborNumber, pointNumber, 'train',)
     scaledLaplacianTest = prepareGraph(inputTest, neighborNumber, pointNumber, 'test')
     return scaledLaplacianTrain, scaledLaplacianTest
-    
