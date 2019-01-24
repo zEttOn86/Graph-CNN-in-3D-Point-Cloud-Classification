@@ -7,3 +7,4 @@
 data/*
 !.gitkeep
 *.pyc
+multi_res_pooling_model/graph/*
