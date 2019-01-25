@@ -1,9 +1,11 @@
-
+# coding :utf-8
+import os
 class parameters():
     def __init__(self):
         #address
-        self.modelDir = '/raid60/yingxue.zhang2/ICASSP_code/multi_res_random/model/'
-        self.logDir = '/raid60/yingxue.zhang2/ICASSP_code/multi_res_random/log/'
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.modelDir = BASE_DIR +'/multi_res_random/model/'
+        self.logDir = BASE_DIR +'/multi_res_random/log/'
         self.fileName = '0221_40nn_cheby_2_2_w_55_52_multi_res'
 
         #fix parameters
@@ -18,7 +20,7 @@ class parameters():
         self.testBatchSize = 1
         self.learningRate = 12e-4
         self.weight_scaler = 40  #40
-	self.weighting_scheme = 'weighted'  #uniform weighted,uniform 
+	self.weighting_scheme = 'weighted'  #uniform weighted,uniform
         self.max_epoch = 210
 
         self.gcn_1_filter_n = 1000 # filter number of the first gcn layer
@@ -31,7 +33,3 @@ class parameters():
 
         self.clusterNumberL2 = 4  #layer two convolutional layer's cluster number
         self.nearestNeighborL2 = 10 ##nearest neighbor number of each centroid points when performing max pooling in second gcn layer
-        
-        
-
-
