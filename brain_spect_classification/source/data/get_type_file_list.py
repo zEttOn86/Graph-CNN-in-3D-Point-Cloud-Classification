@@ -16,8 +16,8 @@ df = pd.read_csv(args.input_csv_file)
 result_dir = args.output_dir
 
 """
-Label number
-0: nomark
+Normalize method
+0: nomark (no normalization)
 1: THLZSFM
 2: PNSZSFM
 3: GLBZSFM
