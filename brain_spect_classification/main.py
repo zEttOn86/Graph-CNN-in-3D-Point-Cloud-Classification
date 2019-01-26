@@ -1,95 +1,67 @@
-# coding:utf-8
+#coding:utf-8
 import os, sys, time
 import tensorflow as tf
+import random
 import numpy as np
-import pickle
 
-from read_data import load_data, prepareData
-from parameters import parameters
-from model_multi_res import model_architecture, trainOneEpoch, evaluateOneEpoch
-from utils import weight_dict_fc
-from sklearn.metrics import confusion_matrix
+sys.path.append(os.path.dirname(__file__))
+import utils.ioFunctions as IO
 
-print('----- Read parameters -----')
-start_time = time.time()
-para = parameters()
+def reset_seed(seed=0):
+    random.seed(seed)
+    np.random.seed(seed)
 
-print('----- Build model -----')
-trainOperaion, sess = model_architecture(para)
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-print('----- Load data -----')
-pointNumber = para.pointNumber
-neighborNumber = para.neighborNumber
-samplingType = para.samplingType
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-inputTrain, trainLabel, inputTest, testLabel = load_data(pointNumber, samplingType, BASE_DIR)
-scaledLaplacianTrain, scaledLaplacianTest = prepareData(inputTrain, inputTest, neighborNumber, pointNumber)
+def main():
+    flags = tf.flags
+    flags.DEFINE_string('base', os.path.dirname(os.path.abspath(__file__)),
+                        'base directory path of program files')
+    flags.DEFINE_string('out', 'results/training_{}'.format(time.strftime('%Y-%m-%d_%H-%M-%S')),
+                        'Directory to output the result')
+    flags.DEFINE_string('train_list', 'configs/train_list.txt',
+                        'Training data list')
+    flags.DEFINE_string('val_list', 'configs/val_list.txt',
+                        'Validation data list')
+    flags.DEFINE_string('gpu_index', '0',
+                        'GPU index')
+    flags.DEFINE_integer('batch_size', 12,
+                        'Batch size')
+    flags.DEFINE_integer('shuffle_buffer_size', 5,
+                        'buffer size of shuffle')
+    flags.DEFINE_integer('num_point', 1024,
+                        'Number of sampling point')
 
-print('----- Train model -----')
+    flags.DEFINE_string('root', os.path.dirname(os.path.abspath(__file__)),
+                        'Root directory path of graph')
+    FLAGS = flags.FLAGS
+    reset_seed()
 
-saver = tf.train.Saver()
-learningRate = para.learningRate
+    output_dir = os.path.join(FLAGS.base, FLAGS.out)
+    tensorboard_dir = os.path.join(output_dir, 'tensorboard')
+    if not os.path.exists(tensorboard_dir):
+        os.makedirs(tensorboard_dir)
 
-modelDir = para.modelDir
-if not os.path.exists(modelDir):
-    os.makedirs(modelDir)
-save_model_path = modelDir + "model_" + para.fileName
-weight_dict = weight_dict_fc(trainLabel, para)
+    print('----- Read data -----')
+    train_data_list = IO.read_data_list(os.path.join(FLAGS.base, FLAGS.train_list))
+    train_data_list = [os.path.join(FLAGS.root, i) for i in train_data_list]
+    random.shuffle(train_data_list)
+    val_data_list = IO.read_data_list(os.path.join(FLAGS.base, FLAGS.val_list))
+    val_data_list = [os.path.join(FLAGS.root, i) for i in val_data_list]
 
-testLabelWhole = []
-for i in range(len(testLabel)):
-    labels = testLabel[i]
-    [testLabelWhole.append(j) for j in labels]
-testLabelWhole = np.asarray(testLabelWhole)
+    train_dataset = tf.data.TFRecordDataset(train_data_list, compression_type = 'GZIP')
+    train_dataset = train_dataset.map(lambda x: IO._parse_function(x, num_point=FLAGS.num_point),
+                              num_parallel_calls=os.cpu_count())
+    train_dataset = train_dataset.shuffle(buffer_size = FLAGS.shuffle_buffer_size)
+    train_dataset = train_dataset.repeat()
+    train_dataset = train_dataset.batch(FLAGS.batch_size)
+    train_iter = train_dataset.make_one_shot_iterator()
+    train_data = train_iter.get_next()
 
-test_acc_record = []
-test_mean_acc_record = []
+    with tf.Session() as sess:
+        (label, _, _) = sess.run(train_data)
+        print(label)
 
-for epoch in range(para.max_epoch):
-    print('===========================epoch {}===================='.format(epoch))
-    if (epoch % 20 == 0):
-        learningRate = learningRate / 2#1.7
-    learningRate = np.max([learningRate, 1e-5])
-    print(learningRate)
-    #training step
-    train_average_loss, train_average_acc, loss_reg_average = trainOneEpoch(inputTrain, scaledLaplacianTrain, trainLabel,
-                                                                            para, sess, trainOperaion,
-                                                                            weight_dict, learningRate)
 
-    save = saver.save(sess, save_model_path)
-    print('=============average loss, l2 loss, acc  for this epoch is {} {} and {}======'.format(train_average_loss,
-                                                                                                 loss_reg_average,
-                                                                                                 train_average_acc))
-    #validating step
-    eval_start_time = time.time()
-    test_average_loss, test_average_acc, test_predict = evaluateOneEpoch(inputTest, scaledLaplacianTest,
-                                                                         testLabel, para, sess, trainOperaion)
-    eval_end_time = time.time()
-    eval_time = eval_end_time - eval_start_time
-    print("The forward inference time is {} second".format(eval_time))
-    # calculate mean class accuracy
-    test_predict = np.asarray(test_predict)
-    test_predict = test_predict.flatten()
-    confusion_mat = confusion_matrix(testLabelWhole[0:len(test_predict)], test_predict)
-    normalized_confusion = confusion_mat.astype('float') / confusion_mat.sum(axis=1)
-    class_acc = np.diag(normalized_confusion)
-    mean_class_acc = np.mean(class_acc)
-
-    # save log
-    log_Dir = para.logDir
-    if not os.path.exists(log_Dir):
-        os.makedirs(log_Dir)
-    fileName = para.fileName
-    with open(log_Dir + 'confusion_mat_' + fileName, 'wb') as handle:
-        pickle.dump(confusion_mat, handle)
-    print('the average acc among 4 class is:{}'.format(mean_class_acc))
-    print(
-        '===========average loss and acc for this epoch is {} and {}======='.format(test_average_loss,
-                                                                                    test_average_acc))
-    test_acc_record.append(test_average_acc)
-    test_mean_acc_record.append(mean_class_acc)
-
-    with open(log_Dir + 'overall_acc_record_' + fileName, 'wb') as handle:
-        pickle.dump(test_acc_record, handle)
-    with open(log_Dir + 'mean_class_acc_record_' + fileName, 'wb') as handle:
-        pickle.dump(test_mean_acc_record, handle)
+if __name__ == '__main__':
+    main()
