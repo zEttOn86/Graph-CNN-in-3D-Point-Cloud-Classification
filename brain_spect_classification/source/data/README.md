@@ -30,17 +30,18 @@
 `grouped_graph_n`
 
 |||
+|:---:|:---:|
 |case 1|(number of sampling point) * (number of sampling point)|
 |case 2| ... |
 
 `grouped_intensity_n`
 
-|||
+|:---:|:---:|
 |case 1| intensity (length = number of sampling point) |
 |case 2| ... |
 
 `grouped_label_n`
 
-|||
+|:---:|:---:|
 |case 1| label |
 |case 2| ... |

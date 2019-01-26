@@ -28,7 +28,7 @@ def main():
                         help='Number of groups')
     parser.add_argument('--num_sampling_point', '-nsp', type=int, default=1024,
                         help='Number of sampling point')
-    parser.add_argument('--nearest_neighbor_num', '-nnn', type=int, default=3,
+    parser.add_argument('--nearest_neighbor_num', '-nnn', type=int, default=40,
                         help='Nearest neighbor number (k-NN k)')
 
     parser.add_argument('--root', '-R', type=str, default= '',
@@ -49,12 +49,14 @@ def main():
     for group in range(args.num_groups):
         print('----- Group: {}'.format(group))
         group_df = df[df['group']==group]
+        print('--- # cases: {}'.format(len(group_df)))
+
         scaledLaplacianDict = dict()
         intensityDict = dict()
         label_list = []
 
-        for case_num, (case, label) in enumerate(zip(df['Case'], df['label'])):
-            print('---- Case, Label: {}, {}'.format(case, label))
+        for case_num, (case, label) in enumerate(zip(group_df['Case'], group_df['label'])):
+            print('-- Case, Label: {}, {}'.format(case, label))
             filepath = os.path.join(args.root, case)
             data_df = IO.read_dat(filepath)[:-1] # Remove last row
             assert(len(data_df) == 15964)
