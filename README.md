@@ -97,3 +97,7 @@ This project is licensed under the MIT License - see the [LICENSE.md] file for d
 - [ ] 入力形式を拡張する
 
 - [x] python2, tensorflow 1.12.0 のDockerfileを作成する
+
+# Tensorflow むずすぎ
+
+:sob::sob::sob::sob::sob::sob::sob::sob:  今度やる :sob::sob::sob::sob::sob::sob::sob::sob:
