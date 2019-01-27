@@ -43,17 +43,3 @@ def read_data_list(path):
             data_list.append(line[:])
 
     return data_list
-
-def _parse_function(record, num_point):
-    keys_to_features = {
-        'label' : tf.FixedLenFeature([], tf.int64),
-        'num_point' : tf.FixedLenFeature([], tf.int64),
-        'laplacian' : tf.FixedLenFeature(num_point*num_point, tf.float32),
-        'intensity' : tf.FixedLenFeature(num_point, tf.float32),
-    }
-    parsed_features = tf.parse_single_example(record, keys_to_features)
-    #label = tf.cast(parsed_features['label'], tf.int32)
-    label = parsed_features['label']
-    flatten_laplacian = parsed_features['laplacian']
-    flatten_intensity = parsed_features['intensity']
-    return label, flatten_laplacian, flatten_intensity

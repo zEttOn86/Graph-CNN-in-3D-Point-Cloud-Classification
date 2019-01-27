@@ -39,11 +39,13 @@ def graph_conv(input_p, scaled_laplacian, point_number,
     cheby_k_minus1 = tf.matmul(scaled_laplacian, input_p)
     cheby_k_minus2 = input_p
 
+    cheby_poly.append(cheby_k_minus2)
+    cheby_poly.append(cheby_k_minus1)
     for i in range(2, chebyshev_order):
         cheby_k = 2 * tf.matmul(scaled_laplacian, cheby_k_minus1) - cheby_k_minus2
         cheby_poly.append(cheby_k)
-        cheby_k_minus2 = cheby_K_Minus_1
-        cheby_K_Minus_1 = cheby_k
+        cheby_k_minus2 = cheby_k_minus1
+        cheby_k_minus1 = cheby_k
 
     cheby_output = []
     for i in range(chebyshev_order):
