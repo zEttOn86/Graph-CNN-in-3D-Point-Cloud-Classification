@@ -10,3 +10,4 @@ data/*
 multi_res_pooling_model/graph/*
 multi_res_pooling_model/multi_res_random/*
 brain_spect_classification/results/*
+results/*
