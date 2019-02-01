@@ -12,3 +12,4 @@ multi_res_pooling_model/multi_res_random/*
 brain_spect_classification/results/*
 results/*
 global_pooling_model/graph
+global_pooling_model/global_pooling
