@@ -3,6 +3,7 @@ data/modelnet40_ply_hdf5_2048/*
 data/graph/*
 data/modelnet40_ply_hdf5_2048.zip
 results/*
+global_pooling_model/*
 !.gitkeep
 
 
