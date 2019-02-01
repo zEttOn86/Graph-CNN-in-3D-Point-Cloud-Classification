@@ -112,13 +112,13 @@ def trainOneEpoch(inputCoor, inputGraph, inputLabel, para, sess, trainOperaion, 
     dataChunkLoss = []
     dataChunkAcc = []
     dataChunkRegLoss = []
-    print('len(inputCoor){}'.format(len(inputCoor)))
+    print('weight_dict')
+    print(weight_dict)
     for i in range(len(inputCoor)):
         xTrain_1, graphTrain_1, labelTrain_1 = inputCoor[i], inputGraph[i], inputLabel[i]
         graphTrain_1 = graphTrain_1.tocsr()
         labelBinarize = label_binarize(labelTrain_1, classes=[j for j in range(para.outputClassN)])
         xTrain, graphTrain, labelTrain = shuffle(xTrain_1, graphTrain_1, labelBinarize)
-        print('graphTrain:\n {}'.format(graphTrain))
 
         # labelBinarize = label_binarize(labelTrain, classes=[j for j in range(40)])
 
@@ -130,10 +130,7 @@ def trainOneEpoch(inputCoor, inputGraph, inputLabel, para, sess, trainOperaion, 
             start = batchID * batchSize
             end = start + batchSize
             batchCoor, batchGraph, batchLabel = get_mini_batch(xTrain, graphTrain, labelTrain, start, end)
-            print('batchGraph:\n {}'.format(batchGraph))
             batchGraph = batchGraph.todense()
-            print('batchGraph:\n {}'.format(batchGraph))
-            print('batchGraph shape:\n {}'.format(batchGraph.shape))
 
             batchCoor = add_noise(batchCoor, sigma=0.008, clip=0.02)
             if para.weighting_scheme == 'uniform':
