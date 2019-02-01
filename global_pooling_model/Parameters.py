@@ -1,4 +1,4 @@
-
+import os
 class Parameters():
     def __init__(self):
     	#self.pointNumber = 1024
@@ -19,9 +19,8 @@ class Parameters():
         self.learningRate = 12e-4
         self.dataset = 'ModelNet40'
         self.weighting_scheme = 'weighted'
-        self.modelDir = '/raid60/yingxue.zhang2/ICASSP_code/global_pooling/model/'
-        self.logDir = '/raid60/yingxue.zhang2/ICASSP_code/global_pooling/log/'
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.modelDir = BASE_DIR +'/global_pooling/model/'
+        self.logDir = BASE_DIR +'/global_pooling/log/'
         self.fileName = '0112_1024_40_cheby_4_3_modelnet40_max_var_first_second_layer'
         self.weight_scaler = 40#50
-
-
