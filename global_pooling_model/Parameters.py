@@ -20,7 +20,7 @@ class Parameters():
         self.dataset = 'ModelNet40'
         self.weighting_scheme = 'weighted'
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        self.modelDir = BASE_DIR +'/global_pooling/model/'
-        self.logDir = BASE_DIR +'/global_pooling/log/'
+        self.modelDir = BASE_DIR +'/global_pooling_/model/'
+        self.logDir = BASE_DIR +'/global_pooling_/log/'
         self.fileName = '0112_1024_40_cheby_4_3_modelnet40_max_var_first_second_layer'
         self.weight_scaler = 40#50

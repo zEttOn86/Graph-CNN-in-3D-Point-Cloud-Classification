@@ -27,14 +27,14 @@ def model_architecture(para):
     print gcn_1_pooling
 
     # gcn_layer_2
-    
+
     gcn_2 = gcnLayer(gcn_1_output, scaledLaplacian, pointNumber=para.pointNumber, inputFeatureN=para.gcn_1_filter_n,
                      outputFeatureN=para.gcn_2_filter_n,
                      chebyshev_order=para.chebyshev_2_Order)
     gcn_2_output = tf.nn.dropout(gcn_2, keep_prob=keep_prob_1)
     gcn_2_pooling = globalPooling(gcn_2_output, featureNumber=para.gcn_2_filter_n)
     print("The output of the second gcn layer is {}".format(gcn_2_pooling))
-    
+
     #gcn_layer_3
     '''
     gcn_3 = gcnLayer(gcn_2_output, scaledLaplacian, pointNumber=para.pointNumber, inputFeatureN=para.gcn_2_filter_n,
@@ -51,7 +51,7 @@ def model_architecture(para):
     globalFeatures = tf.nn.dropout(globalFeatures, keep_prob=keep_prob_2)
     print("The global feature is {}".format(globalFeatures))
     #globalFeatureN = para.gcn_2_filter_n*2
-    globalFeatureN = (para.gcn_1_filter_n + para.gcn_2_filter_n)*2 
+    globalFeatureN = (para.gcn_1_filter_n + para.gcn_2_filter_n)*2
 
     # fully connected layer 1
     fc_layer_1 = fullyConnected(globalFeatures, inputFeatureN=globalFeatureN, outputFeatureN=para.fc_1_n)
@@ -89,7 +89,7 @@ def model_architecture(para):
             variable_parametes *= dim.value
         total_parameters += variable_parametes
     print('Total parameters number is {}'.format(total_parameters))
-    
+
     trainOperaion = {'train': train, 'loss_total':loss_total,'loss': loss, 'acc': acc, 'loss_reg': loss_reg, 'inputPC': inputPC,
                      'inputGraph': inputGraph, 'outputLabel': outputLabel, 'weights': weights,
                      'predictLabels': predictLabels,
@@ -112,11 +112,14 @@ def trainOneEpoch(inputCoor, inputGraph, inputLabel, para, sess, trainOperaion, 
     dataChunkLoss = []
     dataChunkAcc = []
     dataChunkRegLoss = []
+    print('len(inputCoor){}'.format(len(inputCoor)))
     for i in range(len(inputCoor)):
         xTrain_1, graphTrain_1, labelTrain_1 = inputCoor[i], inputGraph[i], inputLabel[i]
         graphTrain_1 = graphTrain_1.tocsr()
         labelBinarize = label_binarize(labelTrain_1, classes=[j for j in range(para.outputClassN)])
         xTrain, graphTrain, labelTrain = shuffle(xTrain_1, graphTrain_1, labelBinarize)
+        print('graphTrain:\n {}'.format(graphTrain))
+
         # labelBinarize = label_binarize(labelTrain, classes=[j for j in range(40)])
 
         batch_loss = []
@@ -127,8 +130,10 @@ def trainOneEpoch(inputCoor, inputGraph, inputLabel, para, sess, trainOperaion, 
             start = batchID * batchSize
             end = start + batchSize
             batchCoor, batchGraph, batchLabel = get_mini_batch(xTrain, graphTrain, labelTrain, start, end)
+            print('batchGraph:\n {}'.format(batchGraph))
             batchGraph = batchGraph.todense()
-
+            print('batchGraph:\n {}'.format(batchGraph))
+            print('batchGraph shape:\n {}'.format(batchGraph.shape))
 
             batchCoor = add_noise(batchCoor, sigma=0.008, clip=0.02)
             if para.weighting_scheme == 'uniform':
@@ -137,7 +142,7 @@ def trainOneEpoch(inputCoor, inputGraph, inputLabel, para, sess, trainOperaion, 
                 batchWeight = weights_calculation(batchLabel, weight_dict)
             else:
                 print 'please enter the valid weighting scheme'
-	        
+
 	    #print batchWeight
 
             feed_dict = {trainOperaion['inputPC']: batchCoor, trainOperaion['inputGraph']: batchGraph,
