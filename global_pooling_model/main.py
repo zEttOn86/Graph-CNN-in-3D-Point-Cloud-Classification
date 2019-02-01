@@ -1,3 +1,4 @@
+import os
 from read_data import load_data, prepareData
 import tensorflow as tf
 from model import model_architecture, trainOneEpoch, evaluateOneEpoch
@@ -38,7 +39,7 @@ with tf.Graph().as_default():
         ModelNet10_dir = '/raid60/yingxue.zhang2/ICASSP_code/data/'
         with open(ModelNet10_dir+'input_data','rb') as handle:
             a = pickle.load(handle)
-        inputTrain, trainLabel, inputTest, testLabel = a 
+        inputTrain, trainLabel, inputTest, testLabel = a
     else:
         print "Please enter a valid dataset"
     scaledLaplacianTrain, scaledLaplacianTest = prepareData(inputTrain, inputTest, neighborNumber, pointNumber)
@@ -51,6 +52,8 @@ with tf.Graph().as_default():
     learningRate = para.learningRate
 
     modelDir = para.modelDir
+    if not os.path.exists(modelDir):
+        os.makedirs(modelDir)
     save_model_path = modelDir + "model_" + para.fileName
     weight_dict = weight_dict_fc(trainLabel, para)
     testLabelWhole = []
@@ -61,7 +64,7 @@ with tf.Graph().as_default():
 
     test_acc_record = []
     test_mean_acc_record = []
-    
+
     for epoch in range(para.max_epoch):
         print('===========================epoch {}===================='.format(epoch))
         if (epoch % 20 == 0):
@@ -91,6 +94,8 @@ with tf.Graph().as_default():
 
         # save log
         log_Dir = para.logDir
+        if not os.path.exists(log_Dir):
+            os.makedirs(log_Dir)
         fileName = para.fileName
         with open(log_Dir + 'confusion_mat_' + fileName, 'wb') as handle:
             pickle.dump(confusion_mat, handle)
@@ -106,4 +111,4 @@ with tf.Graph().as_default():
             pickle.dump(test_mean_acc_record, handle)
 end_time = time.time()
 run_time = (end_time - start_time)/3600
-print 'The running time for this trail is {} hours'.format(run_time)	
+print 'The running time for this trail is {} hours'.format(run_time)

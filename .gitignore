@@ -7,7 +7,8 @@
 data/*
 !.gitkeep
 *.pyc
-brain_spect_classification/*
-multi_res_pooling_model/multi_res_random/*
 multi_res_pooling_model/graph/*
-!.gitkeep
+multi_res_pooling_model/multi_res_random/*
+brain_spect_classification/results/*
+results/*
+global_pooling_model/graph
